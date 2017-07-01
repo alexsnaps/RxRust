@@ -18,7 +18,7 @@ use libc::{c_int, c_void};
 use iobuf::Allocator;
 
 lazy_static! {
-    static ref ALIGN: usize =  mem::size_of_val(&0us);
+    static ref ALIGN: usize =  mem::size_of_val(&0);
     static ref MAGIC: usize = 0x42424242;
     static ref MODE_ALL : Mode = S_IRWXU | S_IRWXG | S_IRWXO;
 }
@@ -185,7 +185,7 @@ fn mmap_allocator_basic() {
     {
         let region = MappedRegion::new("./target/data/test_alloc.db", two_jigabytes ).unwrap();
 
-        for i in range(0, 100is) {
+        for i in range(0, 100) {
             let foo : *mut TestObject = unsafe { mem::transmute(region.allocate(mem::size_of::<TestObject>(), 8)) };
             unsafe { *foo = TestObject { v1: i, v2: i, v3: i, v4: i, v5: i, v6: i as u16, v7: i as u8 } };
         }
@@ -193,7 +193,7 @@ fn mmap_allocator_basic() {
 
     {
         let region = MappedRegion::load("./target/data/test_alloc.db").unwrap();
-        for i in range(0, 100is) {
+        for i in range(0, 100) {
             let foo : *mut TestObject = unsafe { mem::transmute(region.allocate(mem::size_of::<TestObject>(), 8)) };
             unsafe { *foo = TestObject { v1: i*i, v2: i*i, v3: i*i, v4: i*i, v5: i*i, v6: (i*i) as u16, v7: (i*i) as u8 } };
         }

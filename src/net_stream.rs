@@ -144,7 +144,7 @@ use reactive::{Publisher, Subscriber};
         let srv_rx = ne.listen("127.0.0.1", 10000).unwrap();
         let cl = { ne.connect("127.0.0.1", 10000).unwrap().clone() };
 
-        ne.timeout(Duration::milliseconds(500), Box::new(|&: el : &mut Reactor| { el.shutdown(); true}));
+        ne.timeout(Duration::milliseconds(500), Box::new(|el : &mut Reactor| { el.shutdown(); true}));
 
         let tok = cl.tok.clone();
         let dtx = cl.dtx.clone();
