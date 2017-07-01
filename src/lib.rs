@@ -45,6 +45,7 @@
 #![feature(core)]
 #![feature(io)]
 #![feature(collections)]
+#![feature(lookup_host)]
 
 extern crate core;
 extern crate mio;

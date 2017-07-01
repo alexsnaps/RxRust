@@ -5,7 +5,7 @@
 
 use net_stream::NetStream;
 
-use mio::{
+use mio::deprecated::{
     EventLoop,
     EventLoopSender,
     EventLoopConfig,
@@ -14,9 +14,11 @@ use mio::{
     IoWriter,
     IoReader,
     IoAcceptor,
-    Buf, MutBuf,
+    Buf,
+    MutBuf,
     Timeout,
-    MioResult};
+    MioResult
+};
 
 pub use mio::Token;
 use mio::net::{SockAddr, Socket};
@@ -26,7 +28,7 @@ use mio::event;
 
 use iobuf::{Iobuf, RWIobuf, AROIobuf, Allocator, AppendBuf};
 
-use std::old_io::net::addrinfo::get_host_addresses;
+use std::net::lookup_host;
 use std::result::Result;
 use std::sync::Arc;
 use std::sync::mpsc::{Receiver,SyncSender, sync_channel};
@@ -297,7 +299,7 @@ where T : Protocol, <T as Protocol>::Output : Send
                    port: usize,
                    event_loop: &mut Reactor) -> Result<NetStream<'b, <T as Protocol>::Output>, String>
     {
-        let ip = get_host_addresses(hostname).unwrap()[0]; //TODO manage receiving multiple IPs per hostname, random sample or something
+        let ip = lookup_host(hostname).unwrap()[0]; //TODO manage receiving multiple IPs per hostname, random sample or something
         match TcpSocket::v4() {
             Ok(s) => {
                 //s.set_tcp_nodelay(true); TODO: re-add to mio
@@ -326,7 +328,7 @@ where T : Protocol, <T as Protocol>::Output : Send
                   port: usize,
                   event_loop: &mut Reactor) -> Result<Receiver< ProtoMsg< <T as Protocol>::Output >>, String>
     {
-        let ip = get_host_addresses(addr).unwrap()[0];
+        let ip = lookup_host(addr).unwrap()[0];
         match TcpSocket::v4() {
             Ok(s) => {
                 //s.set_tcp_nodelay(true); TODO: re-add to mio
@@ -360,7 +362,6 @@ where T : Protocol, <T as Protocol>::Output : Send
 impl<'a, T> Handler<Token, StreamBuf> for EngineInner<'a, T>
 where T : Protocol, <T as Protocol>::Output : Send
 {
-
     fn readable(&mut self, event_loop: &mut Reactor, token: Token, hint: event::ReadHint) {
         debug!("mio_processor::readable top, token: {:?}", token);
         let mut close = false;
