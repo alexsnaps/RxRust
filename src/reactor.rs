@@ -45,10 +45,10 @@ use protocol::Protocol;
 /// Token reflects the socket whence it came,
 /// when it is sent, Token is the socket out of which
 /// the buffer should be sent
-#[derive(Show)]
+#[derive(Debug)]
 pub struct StreamBuf (pub AROIobuf, pub Token);
 
-#[derive(Show)]
+#[derive(Debug)]
 pub struct ProtoMsg<T> (pub T, pub Token);
 
 unsafe impl Send for StreamBuf {}

@@ -51,7 +51,7 @@ pub struct MMapHeader {
     total_size: u64
 }
 
-impl fmt::Show for MMapHeader {
+impl fmt::Debug for MMapHeader {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "MMapHeader[current: {:?}, total_size: {:?}]", self.current.load(Ordering::Relaxed), self.total_size)
     }
