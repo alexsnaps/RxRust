@@ -9,6 +9,7 @@ log="*"
 time="*"
 quickcheck="*"
 regex="*"
+iobuf = { git = "https://github.com/alexsnaps/iobuf", branch = "NonZero-nightly" }
 
 [dependencies.nix]
 git = "https://github.com/carllerche/nix-rust"
@@ -16,10 +17,6 @@ git = "https://github.com/carllerche/nix-rust"
 [dependencies.mio]
 
 git = "https://github.com/carllerche/mio"
-
-[dependencies.iobuf]
-
-git = "https://github.com/cgaebel/iobuf"
 
 [dependencies.lazy_static]
 
