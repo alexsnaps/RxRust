@@ -185,7 +185,7 @@ fn mmap_allocator_basic() {
     {
         let region = MappedRegion::new("./target/data/test_alloc.db", two_jigabytes ).unwrap();
 
-        for i in range(0, 100) {
+        for i in 0..100 {
             let foo : *mut TestObject = unsafe { mem::transmute(region.allocate(mem::size_of::<TestObject>(), 8)) };
             unsafe { *foo = TestObject { v1: i, v2: i, v3: i, v4: i, v5: i, v6: i as u16, v7: i as u8 } };
         }
@@ -193,7 +193,7 @@ fn mmap_allocator_basic() {
 
     {
         let region = MappedRegion::load("./target/data/test_alloc.db").unwrap();
-        for i in range(0, 100) {
+        for i in 0..100 {
             let foo : *mut TestObject = unsafe { mem::transmute(region.allocate(mem::size_of::<TestObject>(), 8)) };
             unsafe { *foo = TestObject { v1: i*i, v2: i*i, v3: i*i, v4: i*i, v5: i*i, v6: (i*i) as u16, v7: (i*i) as u8 } };
         }
@@ -210,7 +210,7 @@ fn mmap_allocator_boundaries() {
     let one_k = 1024;
     {
         let region = MappedRegion::new("./target/data/test_alloc2.db", one_k).unwrap();
-        for i in range(0, one_k / mem::size_of::<TestObject>() as u64) {
+        for i in 0..one_k / mem::size_of::<TestObject>() as u64 {
             let foo : *mut TestObject = unsafe { mem::transmute(region.allocate(mem::size_of::<TestObject>(), 8)) };
             assert!(foo as usize != 0);
         }

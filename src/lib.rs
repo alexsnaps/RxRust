@@ -108,7 +108,7 @@ fn main() {
     };
 
     let gen = move || {
-        let it = range(0, 20);
+        let it = (0..20);
         let q   = Box::new(Decoupler::new(dtx.clone()));
         let mut map1 = Box::new(Map::new(|i : isize| {i * 10}));
         let mut map2 = Box::new(Map::new(|i : isize| {i + 2}));
@@ -127,7 +127,7 @@ fn main() {
     timer.sleep(Duration::milliseconds(1000));
 
     Thread::spawn(|| {
-        let it = range(0, 20);
+        let it = (0..20);
         let sub = Box::new(StdoutSubscriber::new());
         let mut map1 = Box::new(Map::new(|i : isize| {i * 10}));
         let mut map2 = Box::new(Map::new(|i : isize| {i + 2}));

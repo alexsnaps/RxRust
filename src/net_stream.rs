@@ -161,7 +161,7 @@ use reactive::{Publisher, Subscriber};
             map1.subscribe(map2);
             rep.subscribe(map1);
 
-            for i in range(0, 5) {
+            for i in 0..5 {
                 rep.next();
             }
 
