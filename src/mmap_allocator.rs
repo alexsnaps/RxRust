@@ -156,10 +156,9 @@ impl Drop for MappedRegion {
 
 mod test {
 
-use std::old_io::fs::mkdir_recursive;
+use std::fs::create_dir_all;
 use super::MappedRegion;
-use std::path::posix::Path;
-use std::old_io::FilePermission;
+use std::fs::remove_file;
 use std::mem;
 use super::ALIGN;
 struct TestObject {
@@ -176,16 +175,15 @@ struct TestObject {
 
 #[test]
 fn mmap_allocator_basic() {
-    use std::old_io::fs;
-    let two_jigabytes = 1024 * 1024 * 1024 * 2;
+    let two_jigabytes = 2 << 30;
 
-    mkdir_recursive(&"target/data".parse().unwrap(), FilePermission::from_bits(0o775).unwrap());
-    println!("TestObject is {:?} bytes or {:?} rounded", mem::size_of::<TestObject>(),((mem::size_of::<TestObject>() - 1) | (*ALIGN - 1)) + 1);
+    create_dir_all(&"target/data".parse().unwrap());
+    println!("TestObject is {:?} bytes or {:?} rounded", mem::size_of::<TestObject>(), ((mem::size_of::<TestObject>() - 1) | (*ALIGN - 1)) + 1);
     {
-        let region = MappedRegion::new("./target/data/test_alloc.db", two_jigabytes ).unwrap();
+        let region = MappedRegion::new("./target/data/test_alloc.db", two_jigabytes).unwrap();
 
         for i in 0..100 {
-            let foo : *mut TestObject = unsafe { mem::transmute(region.allocate(mem::size_of::<TestObject>(), 8)) };
+            let foo: *mut TestObject = unsafe { mem::transmute(region.allocate(mem::size_of::<TestObject>(), 8)) };
             unsafe { *foo = TestObject { v1: i, v2: i, v3: i, v4: i, v5: i, v6: i as u16, v7: i as u8 } };
         }
     }
@@ -193,34 +191,33 @@ fn mmap_allocator_basic() {
     {
         let region = MappedRegion::load("./target/data/test_alloc.db").unwrap();
         for i in 0..100 {
-            let foo : *mut TestObject = unsafe { mem::transmute(region.allocate(mem::size_of::<TestObject>(), 8)) };
-            unsafe { *foo = TestObject { v1: i*i, v2: i*i, v3: i*i, v4: i*i, v5: i*i, v6: (i*i) as u16, v7: (i*i) as u8 } };
+            let foo: *mut TestObject = unsafe { mem::transmute(region.allocate(mem::size_of::<TestObject>(), 8)) };
+            unsafe { *foo = TestObject { v1: i * i, v2: i * i, v3: i * i, v4: i * i, v5: i * i, v6: (i * i) as u16, v7: (i * i) as u8 } };
         }
         assert!(region.total_size == two_jigabytes);
     }
-    fs::unlink(&Path::new("./target/data/test_alloc.db"));
+    remove_file(&"./target/data/test_alloc.db".parse().unwrap());
 }
 
 #[test]
 fn mmap_allocator_boundaries() {
-    use std::old_io::fs;
-    mkdir_recursive(&"target/data".parse().unwrap(), FilePermission::from_bits(0o775).unwrap());
+    create_dir_all(&"target/data".parse().unwrap());
 
     let one_k = 1024;
     {
         let region = MappedRegion::new("./target/data/test_alloc2.db", one_k).unwrap();
         for i in 0..one_k / mem::size_of::<TestObject>() as u64 {
-            let foo : *mut TestObject = unsafe { mem::transmute(region.allocate(mem::size_of::<TestObject>(), 8)) };
+            let foo: *mut TestObject = unsafe { mem::transmute(region.allocate(mem::size_of::<TestObject>(), 8)) };
             assert!(foo as usize != 0);
         }
-        let foo : *mut TestObject = unsafe { mem::transmute(region.allocate(mem::size_of::<TestObject>(), 8)) };
+        let foo: *mut TestObject = unsafe { mem::transmute(region.allocate(mem::size_of::<TestObject>(), 8)) };
         assert!(foo as usize == 0);
     }
-        let region = MappedRegion::load("./target/data/test_alloc2.db").unwrap();
-        let foo : *mut TestObject = unsafe { mem::transmute(region.allocate(mem::size_of::<TestObject>(), 8)) };
-        assert!(foo as usize == 0);
+    let region = MappedRegion::load("./target/data/test_alloc2.db").unwrap();
+    let foo: *mut TestObject = unsafe { mem::transmute(region.allocate(mem::size_of::<TestObject>(), 8)) };
+    assert!(foo as usize == 0);
 
-    fs::unlink(&Path::new("./target/data/test_alloc2.db"));
+    remove_file(&"./target/data/test_alloc2.db".parse().unwrap());
 }
 
 }
