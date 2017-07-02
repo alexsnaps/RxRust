@@ -1,6 +1,3 @@
-
-
-use std::time::duration::Duration;
 use std::old_io::timer::Timer;
 use std::num::Int;
 use time::precise_time_ns;
