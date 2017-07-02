@@ -73,9 +73,9 @@ fn main() {
     let token = cli.tok.clone();
     let dtx = cli.dtx.clone();
 
-    ne.timeout(Duration::milliseconds(1000), Box::new(|&: el : &mut Reactor| { el.shutdown(); true}));
+    ne.timeout(Duration::milliseconds(1000), Box::new(|el : &mut Reactor| { el.shutdown(); true}));
 
-    let out = move |:| {
+    let out = move || {
         let mut rec = Box::new(Coupler::new(srv_rx));
         let mut map1 = Box::new(Map::new(| tup |  -> (Msg, u64) {  (tup, precise_time_ns()) }));
         let mut red = Box::new(Enumerate::new());
