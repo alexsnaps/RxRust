@@ -9,7 +9,7 @@ log="*"
 time="*"
 quickcheck="*"
 regex="*"
-iobuf = { git = "https://github.com/alexsnaps/iobuf", branch = "NonZero-nightly" }
+iobuf="5.8"
 rand="0.3"
 
 [dependencies.nix]
