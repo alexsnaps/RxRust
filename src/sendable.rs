@@ -4,7 +4,6 @@
 // of the MIT license.  See the LICENSE file for details.
 //
 use std::sync::mpsc::{SyncSender, SendError, Sender};
-use mio::EventLoopSender;
 
 /// Sendable
 /// Wrapper trait for all types of queue senders
@@ -32,14 +31,3 @@ impl<A : Send> Sendable for SyncSender<A> {
         }
     }
 }
-
-impl<A : Send + Clone> Sendable for EventLoopSender<A> {
-    type Item = A;
-    fn send(&self, a: <Self as Sendable>::Item) -> Result<(), <Self as Sendable>::Item> {
-        match self.send(a) {
-            Ok(_) => Ok(()),
-            e@Err(_)  => e
-        }
-    }
-}
-
