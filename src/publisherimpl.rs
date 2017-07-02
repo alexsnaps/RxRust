@@ -8,7 +8,7 @@ use reactive::{Publisher, Subscriber};
 use quickcheck::{Arbitrary, Gen, StdGen};
 
 use std::sync::mpsc::{Sender, Receiver, TryRecvError};
-use std::rand::Rng;
+use rand::Rng;
 
 use rand::isaac::Isaac64Rng as IRng;
 
