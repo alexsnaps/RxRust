@@ -33,7 +33,6 @@
 //! ```rust
 //! ```
 #![doc(html_root_url = "http://www.rust-ci.org/rrichardson/reactive/doc/reactive/")]
-#![unstable]
 #![crate_id = "rx"]
 #![crate_type="lib"]
 
