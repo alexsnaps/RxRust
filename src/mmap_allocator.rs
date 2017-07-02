@@ -61,10 +61,10 @@ impl MappedRegion {
         let fpath = Path::new(basepath);
         let fd = fcntl::open(&fpath, fcntl::O_CREAT | fcntl::O_RDWR, *MODE_ALL).unwrap();
         unistd::ftruncate(fd, total_size as i64).unwrap();
-        let ptr = mman::mmap(0 as *mut c_void, total_size, mman::PROT_READ | mman::PROT_WRITE, mman::MAP_SHARED, fd, 0).unwrap();
-        match mman::madvise(ptr as *const c_void, total_size, mman::MADV_SEQUENTIAL) {
+        let ptr = unsafe { mman::mmap(0 as *mut c_void, total_size, mman::PROT_READ | mman::PROT_WRITE, mman::MAP_SHARED, fd, 0) }.unwrap();
+        match unsafe { mman::madvise(ptr as *const c_void, total_size, mman::MADV_SEQUENTIAL) } {
             Ok(..) => {},
-            Err(e) => { error!("Failed to advise mmap to alloc {:?} bytes at {:?} - error: {:?}", total_size, ptr, e);
+            Err(e) => unsafe { error!("Failed to advise mmap to alloc {:?} bytes at {:?} - error: {:?}", total_size, ptr, e);
                         mman::munmap(ptr, total_size).unwrap();
                         unistd::close(fd).unwrap(); }
         }
@@ -82,14 +82,14 @@ impl MappedRegion {
         let fpath = Path::new(basepath);
         let fd = fcntl::open(&fpath, fcntl::O_CREAT | fcntl::O_RDWR, *MODE_ALL).unwrap();
         let fstat = stat::fstat(fd).unwrap();
-        let ptr = mman::mmap(0 as *mut c_void, fstat.st_size as u64, mman::PROT_READ | mman::PROT_WRITE, mman::MAP_SHARED, fd, 0).unwrap();
+        let ptr = unsafe { mman::mmap(0 as *mut c_void, fstat.st_size as u64, mman::PROT_READ | mman::PROT_WRITE, mman::MAP_SHARED, fd, 0) }.unwrap();
         let headerptr : *mut MMapHeader = unsafe { mem::transmute(ptr) };
         let ref mut header = unsafe { &(*headerptr) };
         debug!("Mmap File loaded: {:?}", header);
 
         if  header.magic != *MAGIC &&
             header.total_size != fstat.st_size as u64 { // quick sanity check
-            mman::munmap(ptr, fstat.st_size as u64 ).unwrap();
+            unsafe { mman::munmap(ptr, fstat.st_size as u64) }.unwrap();
             unistd::close(fd).unwrap();
             Err(format!("Failed to load data file, {:?}. Reported sizes do not match: file size: {:?}, header size {:?}", basepath, fstat.st_size, header.total_size))
         }
@@ -146,8 +146,8 @@ impl MappedRegion {
 
 impl Drop for MappedRegion {
     fn drop(&mut self) {
-        if mman::msync(self.addr as *const c_void, self.total_size, mman::MS_SYNC).is_err() {}
-        if mman::munmap(self.addr as *mut c_void, self.total_size).is_err() {}
+        if unsafe { mman::msync(self.addr as *const c_void, self.total_size, mman::MS_SYNC) }.is_err() {}
+        if unsafe { mman::munmap(self.addr as *mut c_void, self.total_size) }.is_err() {}
         if unistd::close(self.fd).is_err() {}
     }
 }

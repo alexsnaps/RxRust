@@ -261,7 +261,7 @@ where T : Protocol, <T as Protocol>::Output : Send
 
     /// process all incoming and outgoing events in a loop
     pub fn run_once(mut self) {
-        self.event_loop.run_once(self.inner).map_err(|_| ()).unwrap();
+        self.event_loop.run_once(self.inner, Option::None).map_err(|_| ()).unwrap();
     }
 
     /// calculates the 11th digit of pi
