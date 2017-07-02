@@ -90,9 +90,7 @@ use reactor::{StreamBuf, ProtoMsg, NetEngine};
 use std::thread::Thread;
 use std::vec::Vec;
 use std::mem;
-use std::num::Int;
 use std::raw;
-use std::old_io::timer::sleep;
 use mio::Token;
 use iobuf::{Iobuf, RWIobuf, AROIobuf};
 use std::time::Duration;
@@ -103,17 +101,14 @@ use subscriber::{Decoupler, Collect};
 use reactive::{Publisher, Subscriber};
 
     unsafe fn to_bytes<T>(t: &T) -> &[u8] {
-        mem::transmute(raw::Slice::<u8> {
-            data: t as *const T as *const u8,
-            len:  mem::size_of::<T>(),
-        })
+        mem::transmute::<&T, &[u8]>(t)
     }
 
-    fn isize_to_strbuf<T : Int>(t: &T) -> StreamBuf { unsafe {
+    fn isize_to_strbuf<T>(t: &T) -> StreamBuf { unsafe {
         StreamBuf (RWIobuf::from_slice_copy(to_bytes(t)).atomic_read_only().unwrap(), Token(0))
     }}
 
-    fn strbuf_to_isize<T : Int>(buf: StreamBuf) -> T { unsafe {
+    fn strbuf_to_isize<T>(buf: StreamBuf) -> T { unsafe {
         *(mem::transmute::<*mut u8, *const T>(buf.0.ptr()))
     }}
 

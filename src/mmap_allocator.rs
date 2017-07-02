@@ -5,9 +5,8 @@
 
 use std::mem;
 use std::ops::Drop;
-use std::old_io::FilePermission;
 use std::fmt;
-use std::sync::atomic::{Ordering, AtomicUint};
+use std::sync::atomic::{Ordering, AtomicU64};
 use std::path::Path;
 use nix::sys::{mman, stat};
 use nix::{fcntl, unistd};
@@ -39,7 +38,7 @@ pub struct MappedRegion {
     total_size: u64,
     fd: c_int,
     header: *mut MMapHeader,
-    count: AtomicUint
+    count: AtomicU64
 }
 
 unsafe impl Send for MappedRegion {}
@@ -47,7 +46,7 @@ unsafe impl Sync for MappedRegion {}
 
 pub struct MMapHeader {
     magic: usize,
-    current: AtomicUint,
+    current: AtomicU64,
     total_size: u64
 }
 
@@ -71,11 +70,11 @@ impl MappedRegion {
         }
         let offset = ((mem::size_of::<MMapHeader>() - 1) | (*ALIGN -1)) + 1;
         let headerptr : *mut MMapHeader = unsafe { mem::transmute(ptr) };
-        unsafe { *headerptr = MMapHeader {magic: *MAGIC, current: AtomicUint::new(offset), total_size: total_size } };
+        unsafe { *headerptr = MMapHeader {magic: *MAGIC, current: AtomicU64::new(offset), total_size: total_size } };
         Ok(MappedRegion{addr : ptr as *const c_void,
                         total_size : total_size,
                         fd: fd,
-                        count: AtomicUint::new(0),
+                        count: AtomicU64::new(0),
                         header: headerptr})
     }
 
@@ -98,7 +97,7 @@ impl MappedRegion {
             Ok(MappedRegion{addr : ptr as *const c_void,
                             total_size : header.total_size,
                             fd: fd,
-                            count: AtomicUint::new(0),
+                            count: AtomicU64::new(0),
                             header: headerptr })
         }
     }
@@ -112,7 +111,7 @@ impl MappedRegion {
                  |ptr| (fd, Destructed::new(ptr, Box::new(|p| { mman::munmap(*p, size);})) )}).and_then(
           |(fd,ptr)| { mman::madvise(*ptr.inner() as *const c_void, size, mman::MADV_SEQUENTIAL).map(|_| (fd, ptr)) }).map(
           |(fd,ptr)| { ptr.release(); fd.release();
-                       MappedRegion{addr : *ptr.inner() as *const c_void, total_size : size, current: AtomicUint::new(*ptr.inner() as usize), fd: *fd.inner(), align: align}
+                       MappedRegion{addr : *ptr.inner() as *const c_void, total_size : size, current: AtomicU64::new(*ptr.inner() as usize), fd: *fd.inner(), align: align}
                      }).map_err(|e| e.desc())
     }
     */

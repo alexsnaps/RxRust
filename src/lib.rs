@@ -46,6 +46,7 @@
 #![feature(collections)]
 #![feature(lookup_host)]
 #![feature(raw)]
+#![feature(integer_atomics)]
 
 extern crate core;
 extern crate mio;
@@ -95,7 +96,7 @@ fn main() {
     use processor::{Map};
     use subscriber::{StdoutSubscriber, Decoupler};
     use reactive::{Publisher, Subscriber};
-    use std::old_io::Timer;
+    use std::thread::sleep;
     use std::time::Duration;
     use std::sync::mpsc::{channel};
     use std::thread::Thread;
@@ -108,7 +109,7 @@ fn main() {
     };
 
     let gen = move || {
-        let it = (0..20);
+        let it = 0..20;
         let q   = Box::new(Decoupler::new(dtx.clone()));
         let mut map1 = Box::new(Map::new(|i : isize| {i * 10}));
         let mut map2 = Box::new(Map::new(|i : isize| {i + 2}));
@@ -123,11 +124,10 @@ fn main() {
     Thread::spawn(out);
     Thread::spawn(gen);
 
-    let mut timer = Timer::new().unwrap();
-    timer.sleep(Duration::milliseconds(1000));
+    sleep(time::Duration::from_millis(1000));
 
     Thread::spawn(|| {
-        let it = (0..20);
+        let it = 0..20;
         let sub = Box::new(StdoutSubscriber::new());
         let mut map1 = Box::new(Map::new(|i : isize| {i * 10}));
         let mut map2 = Box::new(Map::new(|i : isize| {i + 2}));
@@ -141,6 +141,6 @@ fn main() {
     });
 
 
-    timer.sleep(Duration::milliseconds(1000));
+    sleep(time::Duration::from_millis(1000));
 
 }

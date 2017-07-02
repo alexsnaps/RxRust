@@ -1,5 +1,3 @@
-use std::old_io::timer::Timer;
-use std::num::Int;
 use time::precise_time_ns;
 use reactive::Publisher;
 use reactor::StreamBuf;
@@ -11,7 +9,6 @@ use libc::{timespec, nanosleep};
 /// it makes There is no minimum number of loops
 pub fn fixed_loop<F>(rate: u64, mut f: F) where F : FnMut() -> bool {
     debug!("Starting loop");
-    let mut timer = Timer::new().unwrap();
     let loop_time_ns = 1_000_000_000i64 / rate as i64;
     let mut run = true;
     let mut nein = timespec { tv_sec: 0, tv_nsec: 0 };
