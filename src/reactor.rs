@@ -35,7 +35,7 @@ use std::sync::mpsc::{Receiver,SyncSender, sync_channel};
 
 use std::time::Duration;
 
-use collections::dlist::DList;
+use std::collections::LinkedList;
 
 use reactive::Subscriber;
 use protocol::Protocol;
@@ -106,7 +106,7 @@ struct Connection<T>
 where T : Protocol, <T as Protocol>::Output : Send
 {
         sock: TcpSocket,
-        outbuf: DList<StreamBuf>,
+        outbuf: LinkedList<StreamBuf>,
         interest: event::Interest,
         conn_tx: SyncSender<ProtoMsg<<T as Protocol>::Output>>,
         marker: u32,
@@ -120,7 +120,7 @@ where T : Protocol, <T as Protocol>::Output : Send
     pub fn new(s: TcpSocket, tx: SyncSender<ProtoMsg<<T as Protocol>::Output>>, rbuf: ReadBuf) -> Connection<T> {
         Connection {
             sock: s,
-            outbuf: DList::new(),
+            outbuf: LinkedList::new(),
             interest: event::HUP,
             conn_tx: tx,
             marker: 0,
@@ -362,6 +362,9 @@ where T : Protocol, <T as Protocol>::Output : Send
 impl<'a, T> Handler<Token, StreamBuf> for EngineInner<'a, T>
 where T : Protocol, <T as Protocol>::Output : Send
 {
+    type Timeout = ();
+    type Message = ();
+/*
     fn readable(&mut self, event_loop: &mut Reactor, token: Token, hint: event::ReadHint) {
         debug!("mio_processor::readable top, token: {:?}", token);
         let mut close = false;
@@ -447,6 +450,7 @@ where T : Protocol, <T as Protocol>::Output : Send
             }
         }
     }
+*/
 
 
     fn notify(&mut self, event_loop: &mut Reactor, msg: StreamBuf) {
